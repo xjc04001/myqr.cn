@@ -8,3 +8,5 @@
 	git commit -m "optimize QR share overlay styles"
 
 	git push
+
+运行：npm run dev
