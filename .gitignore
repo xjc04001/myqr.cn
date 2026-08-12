@@ -1,5 +1,7 @@
 node_modules
 dist
+images/
+*.tsbuildinfo
 .DS_Store
 *.local
 npm-debug.log*
