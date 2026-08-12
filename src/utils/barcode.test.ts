@@ -1,5 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { barcodeTypes, buildBwipOptions, createBarcodeSvg, normalizeHex } from './barcode';
+import {
+  barcodeTypes,
+  buildBwipOptions,
+  createBarcodeSvg,
+  createPngExportBarcodeOptions,
+  createPreviewBarcodeOptions,
+  getDefaultBarcodeHeight,
+  normalizeHex,
+  pngExportScaleMultiplier,
+  previewBarcodeHeight,
+} from './barcode';
 
 describe('barcode utilities', () => {
   it('supports the requested barcode formats', () => {
@@ -11,8 +21,8 @@ describe('barcode utilities', () => {
       type: 'CODE128',
       text: 'MYQR-1001',
       scale: 3,
-      height: 64,
-      width: 2,
+      height: 10,
+      width: 80,
       showText: true,
       colorDark: '#111827',
       colorLight: '#ffffff',
@@ -23,8 +33,8 @@ describe('barcode utilities', () => {
       text: 'MYQR-1001',
       scaleX: 3,
       scaleY: 3,
-      height: 64,
-      width: 2,
+      height: 10,
+      width: 80,
       includetext: true,
       barcolor: '111827',
       backgroundcolor: 'FFFFFF',
@@ -47,7 +57,86 @@ describe('barcode utilities', () => {
     expect(svg).toContain('</svg>');
   });
 
+  it('creates distinct SVG markup for different barcode content', () => {
+    const first = createBarcodeSvg({
+      type: 'CODE128',
+      text: '123456',
+      scale: 3,
+      height: 24,
+      width: 2,
+      showText: true,
+      colorDark: '#000000',
+      colorLight: '#ffffff',
+    });
+    const second = createBarcodeSvg({
+      type: 'CODE128',
+      text: '654321',
+      scale: 3,
+      height: 24,
+      width: 2,
+      showText: true,
+      colorDark: '#000000',
+      colorLight: '#ffffff',
+    });
+
+    expect(first).not.toBe(second);
+  });
+
   it('normalizes hex color values for bwip-js', () => {
     expect(normalizeHex('#0f5cff')).toBe('0F5CFF');
+  });
+
+  it('uses a fixed preview height without mutating download options', () => {
+    const downloadOptions = {
+      type: 'CODE128' as const,
+      text: '123456789',
+      scale: 3,
+      height: 30,
+      showText: true,
+      colorDark: '#111827',
+      colorLight: '#ffffff',
+    };
+
+    const previewOptions = createPreviewBarcodeOptions(downloadOptions);
+
+    expect(previewOptions.height).toBe(previewBarcodeHeight);
+    expect(previewOptions.scale).toBeGreaterThanOrEqual(3);
+    expect(downloadOptions.height).toBe(30);
+  });
+
+  it('raises PNG export scale for print output', () => {
+    const options = createPngExportBarcodeOptions({
+      type: 'CODE128',
+      text: '123456789',
+      scale: 3,
+      height: 10,
+      width: 2,
+      showText: true,
+      colorDark: '#111827',
+      colorLight: '#ffffff',
+    });
+
+    expect(options.scale).toBe(3 * pngExportScaleMultiplier);
+    expect(options.height).toBe(10);
+  });
+
+  it('provides reasonable default heights by barcode type', () => {
+    expect(getDefaultBarcodeHeight('CODE128')).toBe(10);
+    expect(getDefaultBarcodeHeight('EAN-13')).toBe(23.6);
+    expect(getDefaultBarcodeHeight('ITF-14')).toBe(14);
+  });
+
+  it('omits width by default so bwip-js can preserve natural module width', () => {
+    const options = buildBwipOptions({
+      type: 'CODE128',
+      text: '123456',
+      scale: 3,
+      height: 10,
+      showText: true,
+      colorDark: '#111827',
+      colorLight: '#ffffff',
+    });
+
+    expect(options).not.toHaveProperty('width');
   });
 });

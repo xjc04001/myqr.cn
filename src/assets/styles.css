@@ -333,7 +333,8 @@ main {
 
 .barcode-preview {
   display: grid;
-  min-height: 300px;
+  flex: 1;
+  min-height: 260px;
   place-items: center;
   margin-bottom: 16px;
   padding: 24px;
@@ -343,15 +344,40 @@ main {
   background: #fbfdff;
 }
 
-.barcode-preview canvas {
+.barcode-preview-image {
   max-width: 100%;
+  max-height: 96px;
+  width: auto;
   height: auto;
+}
+
+.barcode-grid {
+  align-items: stretch;
+}
+
+.barcode-card,
+.barcode-card .el-card__body {
+  display: flex;
+  flex-direction: column;
+}
+
+.barcode-card .el-card__body {
+  flex: 1;
 }
 
 .button-row {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
+}
+
+.download-canvas {
+  position: fixed;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+  opacity: 0;
 }
 
 .site-footer {
