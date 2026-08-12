@@ -48,7 +48,13 @@
           <strong>{{ t.result }}</strong>
         </template>
         <div class="preview-box">
-          <img v-if="qrDataUrl" :src="qrDataUrl" :alt="t.previewAlt" :class="{ 'is-placeholder': !hasContent }">
+          <img
+            v-if="qrDataUrl"
+            :src="qrDataUrl"
+            :alt="t.previewAlt"
+            :class="{ 'is-placeholder': !hasContent, 'is-clickable': hasContent }"
+            @click="openSharePreview"
+          >
           <div v-if="!hasContent && qrDataUrl" class="preview-mask">
             {{ overlayText }}
           </div>
@@ -57,6 +63,12 @@
         <el-button type="primary" :disabled="!hasContent || !qrDataUrl" @click="download">{{ t.download }}</el-button>
       </el-card>
     </div>
+    <QRSharePreview
+      :visible="sharePreviewVisible"
+      :image-src="qrDataUrl"
+      :content="content.trim()"
+      @close="sharePreviewVisible = false"
+    />
   </PageShell>
 </template>
 
@@ -64,6 +76,7 @@
 import { computed, reactive, ref, watch } from 'vue';
 import { saveAs } from 'file-saver';
 import PageShell from '../components/PageShell.vue';
+import QRSharePreview from '../components/QRSharePreview.vue';
 import { debounce } from '../utils/debounce';
 import { createQrDataUrl, dataUrlToBlob, type QrOptions } from '../utils/qr';
 import { useI18n } from '../utils/i18n';
@@ -73,6 +86,7 @@ const t = computed(() => text.value.generator);
 const placeholderContent = 'https://myqr.cn';
 const content = ref('');
 const qrDataUrl = ref('');
+const sharePreviewVisible = ref(false);
 const hasContent = computed(() => content.value.trim().length > 0);
 const overlayText = computed(() => (isZh.value ? '请在左侧输入内容即生成' : 'Enter content on the left to generate'));
 const options = reactive<QrOptions>({
@@ -105,6 +119,12 @@ function onLogoChange(file: { raw?: File }) {
 function download() {
   if (qrDataUrl.value) {
     saveAs(dataUrlToBlob(qrDataUrl.value), 'myqr.png');
+  }
+}
+
+function openSharePreview() {
+  if (hasContent.value && qrDataUrl.value) {
+    sharePreviewVisible.value = true;
   }
 }
 </script>

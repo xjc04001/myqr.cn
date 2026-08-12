@@ -186,6 +186,10 @@ main {
   height: auto;
 }
 
+.preview-box img.is-clickable {
+  cursor: zoom-in;
+}
+
 .preview-box img.is-placeholder {
   opacity: 0.14;
   filter: grayscale(1);

@@ -1,0 +1,10 @@
+构建
+	npm run build
+提交 Git：
+	git status
+
+	git add .
+
+	git commit -m "optimize QR share overlay styles"
+
+	git push
