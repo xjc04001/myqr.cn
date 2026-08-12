@@ -331,6 +331,29 @@ main {
   margin-top: 18px;
 }
 
+.barcode-preview {
+  display: grid;
+  min-height: 300px;
+  place-items: center;
+  margin-bottom: 16px;
+  padding: 24px;
+  overflow: auto;
+  border: 1px dashed #d8e1ee;
+  border-radius: 8px;
+  background: #fbfdff;
+}
+
+.barcode-preview canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
 .site-footer {
   display: grid;
   gap: 8px;

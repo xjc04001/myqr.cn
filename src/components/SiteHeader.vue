@@ -22,7 +22,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { DocumentChecked, Files, MagicStick } from '@element-plus/icons-vue';
+import { DocumentChecked, Files, MagicStick, Tickets } from '@element-plus/icons-vue';
 import { setLocale, useI18n, type Locale } from '../utils/i18n';
 
 const { locale, text } = useI18n();
@@ -38,5 +38,6 @@ const tabs = computed(() => [
   { to: '/generate', label: text.value.nav.generate, icon: MagicStick },
   { to: '/decode', label: text.value.nav.decode, icon: DocumentChecked },
   { to: '/batch', label: text.value.nav.batch, icon: Files },
+  { to: '/barcode', label: text.value.nav.barcode, icon: Tickets },
 ]);
 </script>

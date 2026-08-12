@@ -13,6 +13,7 @@ export default tseslint.config(
         Blob: 'readonly',
         File: 'readonly',
         FileReader: 'readonly',
+        HTMLCanvasElement: 'readonly',
         HTMLImageElement: 'readonly',
         CanvasRenderingContext2D: 'readonly',
         URL: 'readonly',
@@ -34,6 +35,7 @@ export default tseslint.config(
       globals: {
         File: 'readonly',
         FileReader: 'readonly',
+        HTMLCanvasElement: 'readonly',
         URL: 'readonly',
         navigator: 'readonly',
         window: 'readonly',
