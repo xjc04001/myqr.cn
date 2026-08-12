@@ -1,23 +1,23 @@
 <template>
-  <PageShell eyebrow="Batch QR Code" title="批量生成二维码">
+  <PageShell :eyebrow="t.eyebrow" :title="t.title">
     <div class="tool-grid">
       <el-card shadow="never">
         <template #header>
-          <strong>TXT 文件</strong>
+          <strong>{{ t.file }}</strong>
         </template>
         <el-upload accept=".txt,text/plain" :auto-upload="false" :show-file-list="false" :on-change="handleFile">
-          <el-button type="primary">选择 TXT 文件</el-button>
+          <el-button type="primary">{{ t.choose }}</el-button>
         </el-upload>
-        <p class="muted">最多 10000 行，文件不超过 1MB，空行和超过 200 字符的行会自动跳过。</p>
+        <p class="muted">{{ t.hint }}</p>
         <el-progress v-if="total" :percentage="progress" />
       </el-card>
 
       <el-card shadow="never">
         <template #header>
-          <strong>处理状态</strong>
+          <strong>{{ t.state }}</strong>
         </template>
-        <el-statistic title="有效行数" :value="total" />
-        <el-statistic title="已生成" :value="done" />
+        <el-statistic :title="t.validRows" :value="total" />
+        <el-statistic :title="t.generated" :value="done" />
         <p class="muted">{{ status }}</p>
       </el-card>
     </div>
@@ -28,16 +28,25 @@
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { ElMessage } from 'element-plus';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import PageShell from '../components/PageShell.vue';
 import { createQrDataUrl, dataUrlToBlob } from '../utils/qr';
+import { useI18n } from '../utils/i18n';
 
+const { text } = useI18n();
+const t = computed(() => text.value.batch);
 const maxFileSize = 1024 * 1024;
 const maxRows = 10000;
 const total = ref(0);
 const done = ref(0);
-const status = ref('等待上传 TXT 文件');
+const status = ref(t.value.waiting);
 const progress = computed(() => (total.value ? Math.round((done.value / total.value) * 100) : 0));
+
+watch(t, (value) => {
+  if (!total.value) {
+    status.value = value.waiting;
+  }
+});
 
 async function handleFile(file: { raw?: File }) {
   if (!file.raw) {
@@ -45,19 +54,19 @@ async function handleFile(file: { raw?: File }) {
   }
 
   if (file.raw.size > maxFileSize) {
-    ElMessage.error('文件大小不能超过 1MB');
+    ElMessage.error(t.value.fileTooLarge);
     return;
   }
 
-  const text = await file.raw.text();
-  const lines = text
+  const textContent = await file.raw.text();
+  const lines = textContent
     .split(/\r?\n/)
     .map((line) => line.trim())
     .filter((line) => line.length > 0 && line.length <= 200)
     .slice(0, maxRows);
 
   if (!lines.length) {
-    ElMessage.warning('没有可生成的有效内容');
+    ElMessage.warning(t.value.noValidContent);
     return;
   }
 
@@ -68,7 +77,7 @@ async function generateZip(lines: string[]) {
   const zip = new JSZip();
   total.value = lines.length;
   done.value = 0;
-  status.value = '正在生成二维码';
+  status.value = t.value.generating;
 
   for (let index = 0; index < lines.length; index += 1) {
     const dataUrl = await createQrDataUrl(lines[index], {
@@ -86,10 +95,10 @@ async function generateZip(lines: string[]) {
     }
   }
 
-  status.value = '正在打包 ZIP';
+  status.value = t.value.packing;
   const blob = await zip.generateAsync({ type: 'blob' });
   saveAs(blob, 'qrcode.zip');
-  status.value = '已完成并触发下载';
-  ElMessage.success('批量二维码生成完成');
+  status.value = t.value.done;
+  ElMessage.success(t.value.success);
 }
 </script>

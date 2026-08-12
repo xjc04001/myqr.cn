@@ -1,23 +1,42 @@
 <template>
   <header class="site-header">
-    <router-link class="brand" to="/generate">
-      <img src="/images/logo.png" alt="MYQR" />
-      <span>MYQR</span>
-    </router-link>
-    <nav class="main-tabs">
-      <router-link to="/generate">在线生成</router-link>
-      <router-link to="/decode">在线解码</router-link>
-      <router-link to="/batch">批量生成</router-link>
-    </nav>
-    <div class="header-actions">
-      <el-segmented v-model="language" :options="['中文', 'English']" size="small" />
-      <a href="#about">关于我们</a>
+    <div class="header-top">
+      <router-link class="brand" to="/generate">
+        <img src="/images/logo.png" alt="MYQR">
+        <span>MYQR.CN</span>
+      </router-link>
+      <div class="header-actions">
+        <el-segmented v-model="languageModel" :options="languageOptions" size="small" />
+      </div>
     </div>
+    <nav class="main-tabs">
+      <router-link v-for="item in tabs" :key="item.to" :to="item.to">
+        <el-icon>
+          <component :is="item.icon" />
+        </el-icon>
+        <span>{{ item.label }}</span>
+      </router-link>
+    </nav>
   </header>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed } from 'vue';
+import { DocumentChecked, Files, MagicStick } from '@element-plus/icons-vue';
+import { setLocale, useI18n, type Locale } from '../utils/i18n';
 
-const language = ref('中文');
+const { locale, text } = useI18n();
+const languageOptions = [
+  { label: '中', value: 'zh' },
+  { label: 'EN', value: 'en' },
+];
+const languageModel = computed({
+  get: () => locale.value,
+  set: (value: Locale) => setLocale(value),
+});
+const tabs = computed(() => [
+  { to: '/generate', label: text.value.nav.generate, icon: MagicStick },
+  { to: '/decode', label: text.value.nav.decode, icon: DocumentChecked },
+  { to: '/batch', label: text.value.nav.batch, icon: Files },
+]);
 </script>

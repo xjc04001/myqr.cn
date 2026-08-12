@@ -1,28 +1,29 @@
 <template>
-  <PageShell eyebrow="QR Code Decoder" title="在线二维码识别">
-    <div class="tool-grid">
-      <el-card shadow="never">
+  <PageShell :eyebrow="t.eyebrow" :title="t.title">
+    <div class="tool-grid decoder-grid">
+      <el-card class="decoder-card" shadow="never">
         <template #header>
-          <strong>上传图片</strong>
+          <strong>{{ t.upload }}</strong>
         </template>
         <el-upload
+          class="decoder-upload"
           drag
           accept=".png,.jpg,.jpeg,.bmp,.webp,image/png,image/jpeg,image/bmp,image/webp"
           :auto-upload="false"
           :show-file-list="false"
           :on-change="decode"
         >
-          <div class="upload-text">拖放或点击上传 PNG / JPG / JPEG / BMP / WebP</div>
+          <div class="upload-text">{{ t.uploadHint }}</div>
         </el-upload>
-        <img v-if="previewUrl" class="uploaded-preview" :src="previewUrl" alt="上传预览" />
+        <img v-if="previewUrl" class="uploaded-preview" :src="previewUrl" :alt="t.previewAlt">
       </el-card>
 
-      <el-card shadow="never">
+      <el-card class="decoder-card" shadow="never">
         <template #header>
-          <strong>识别结果</strong>
+          <strong>{{ t.result }}</strong>
         </template>
-        <el-input v-model="result" type="textarea" :rows="8" readonly placeholder="识别成功后显示二维码内容" />
-        <el-button type="primary" :disabled="!result" @click="copyResult">一键复制</el-button>
+        <el-input v-model="result" type="textarea" :rows="6" readonly :placeholder="t.placeholder" />
+        <el-button class="copy-button" type="primary" :disabled="!result" @click="copyResult">{{ t.copy }}</el-button>
       </el-card>
     </div>
   </PageShell>
@@ -31,9 +32,12 @@
 <script setup lang="ts">
 import { BrowserQRCodeReader } from '@zxing/browser';
 import { ElMessage } from 'element-plus';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import PageShell from '../components/PageShell.vue';
+import { useI18n } from '../utils/i18n';
 
+const { text } = useI18n();
+const t = computed(() => text.value.decoder);
 const reader = new BrowserQRCodeReader();
 const result = ref('');
 const previewUrl = ref('');
@@ -51,15 +55,15 @@ async function decode(file: { raw?: File }) {
   try {
     const decoded = await reader.decodeFromImageUrl(previewUrl.value);
     result.value = decoded.getText();
-    ElMessage.success('识别成功');
+    ElMessage.success(t.value.success);
   } catch {
     result.value = '';
-    ElMessage.error('图片无法识别，请上传清晰完整二维码图片。');
+    ElMessage.error(t.value.failed);
   }
 }
 
 async function copyResult() {
   await navigator.clipboard.writeText(result.value);
-  ElMessage.success('已复制');
+  ElMessage.success(t.value.copied);
 }
 </script>

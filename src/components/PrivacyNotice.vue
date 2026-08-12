@@ -1,9 +1,9 @@
 <template>
-  <el-alert
-    class="privacy-notice"
-    type="success"
-    :closable="false"
-    show-icon
-    title="本站所有二维码生成、识别和批量处理均在您的浏览器本地完成，不保存您提交的数据，不涉及您的隐私。"
-  />
+  <el-alert class="privacy-notice" type="success" :closable="false" show-icon :title="text.privacy" />
 </template>
+
+<script setup lang="ts">
+import { useI18n } from '../utils/i18n';
+
+const { text } = useI18n();
+</script>
